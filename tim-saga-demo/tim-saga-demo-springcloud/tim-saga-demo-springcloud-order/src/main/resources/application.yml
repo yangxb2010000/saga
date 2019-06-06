@@ -1,0 +1,28 @@
+server:
+  port: 0
+eureka:
+  instance:
+    hostname: localhost
+    instace-id: ${spring.application.name}:${random.int}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:10086/eureka/
+spring:
+  application:
+    name: order-service
+  saga:
+    repository:
+      jdbc:
+        driver-name: "com.mysql.jdbc.Driver"
+        url: "jdbc:mysql://localhost:3306/saga-test"
+        user-name: "root"
+        password: "123456"
+    recover:
+      enable: true
+
+logging:
+  level:
+    com:
+      tim: DEBUG
