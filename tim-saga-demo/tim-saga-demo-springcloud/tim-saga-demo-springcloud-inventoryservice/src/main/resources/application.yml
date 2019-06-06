@@ -1,0 +1,14 @@
+server:
+  port: 0
+eureka:
+  instance:
+    hostname: localhost
+    instace-id: ${spring.application.name}:${random.int}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:10086/eureka/
+spring:
+  application:
+    name: inventory-service
