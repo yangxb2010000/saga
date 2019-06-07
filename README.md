@@ -4,7 +4,7 @@ saga分布式事务
 * 基于saga协议的分布式事务实现
 * 支持异步cancel， 同时支持并发cancel，尽可能减少对系统的性能影响
 * 支持spring cloud和dubbo
-* 支持非rpc的方法
+* 支持非rpc的方法作为事务参与方
 ## TODO：
 * dashboard / admin 事务的可视化以及管理
 ## 上手指南
