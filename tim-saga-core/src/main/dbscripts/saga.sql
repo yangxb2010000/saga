@@ -5,7 +5,7 @@
  Source Server Type    : MySQL
  Source Server Version : 50725
  Source Host           : localhost:3306
- Source Schema         : saga-test
+ Source Schema         : saga
 
  Target Server Type    : MySQL
  Target Server Version : 50725
@@ -13,6 +13,10 @@
 
  Date: 07/06/2019 00:04:46
 */
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`saga` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */;
+
+use saga;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;

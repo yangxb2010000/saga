@@ -120,7 +120,6 @@ public class PaymentServiceImpl implements PaymentService {
 		System.exit(1);
 	}
 
-	@SagaParticipative(cancelMethod = "cancelPayment")
 	public void successPayOrder(Order order) {
 		order.setStatus(OrderStatusEnum.PAY_SUCCESS.getCode());
 		orderMapper.update(order);

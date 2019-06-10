@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 10087
 eureka:
   instance:
     hostname: localhost
@@ -20,7 +20,7 @@ spring:
     enable: true
     repository:
       jdbc:
-        url: jdbc:mysql://localhost:3306/saga-test
+        url: jdbc:mysql://localhost:3306/saga
         user-name: root
         password: 123456
     recover:
