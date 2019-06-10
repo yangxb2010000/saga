@@ -25,22 +25,30 @@ public class SagaConfigAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SagaConfig.class)
 	public SagaConfig sagaConfig(SagaProperties properties) {
-		SagaConfig.SagaConfigBuilder sagaConfigBuilder = SagaConfig.builder()
+		SagaConfig sagaConfig = SagaConfig.builder()
 				.applicationId(properties.getApplicationId())
 				.asyncCancel(properties.isAsyncCancel())
 				.concurrentCancel(properties.isConcurrentCancel())
-				.waitConcurrentCancelTimeoutInMs(properties.getWaitConcurrentCancelTimeoutInMs());
+				.waitConcurrentCancelTimeoutInMs(properties.getWaitConcurrentCancelTimeoutInMs()).build();
 
 		if (properties.getRecover() != null) {
-			sagaConfigBuilder.recoverConfig(SagaConfig.RecoverConfig
-					.builder()
-					.recoverDuration(properties.getRecover().getRecoverDuration())
-					.maxRetryCount(properties.getRecover().getMaxRetryCount())
-					.build());
+			if (sagaConfig.getRecoverConfig() == null) {
+				sagaConfig.setRecoverConfig(SagaConfig.RecoverConfig.builder().build());
+			}
+
+			SagaConfig.RecoverConfig recoverConfig = sagaConfig.getRecoverConfig();
+
+			if (0 != properties.getRecover().getRecoverDuration()) {
+				recoverConfig.setRecoverDuration(properties.getRecover().getRecoverDuration());
+			}
+
+			if (0 != properties.getRecover().getMaxRetryCount()) {
+				recoverConfig.setMaxRetryCount(properties.getRecover().getMaxRetryCount());
+			}
 		}
 
 		if (properties.getThreadPool() != null) {
-			sagaConfigBuilder.threadPoolConfig(SagaConfig.ThreadPoolConfig
+			sagaConfig.setThreadPoolConfig(SagaConfig.ThreadPoolConfig
 					.builder()
 					.coreSize(properties.getThreadPool().getCoreSize())
 					.maxSize(properties.getThreadPool().getMaxSize())
@@ -48,8 +56,6 @@ public class SagaConfigAutoConfiguration {
 					.keepAliveTimeInMs(properties.getThreadPool().getKeepAliveTimeInMs())
 					.build());
 		}
-
-		SagaConfig sagaConfig = sagaConfigBuilder.build();
 
 		if (StringUtils.isEmpty(sagaConfig.getApplicationId())) {
 			sagaConfig.setApplicationId(applicationContext.getId());

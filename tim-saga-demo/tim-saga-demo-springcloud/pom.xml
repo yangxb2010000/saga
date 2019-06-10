@@ -13,8 +13,9 @@
     <artifactId>tim-saga-demo-springcloud</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>tim-saga-demo-springcloud-inventoryservice</module>
+        <module>tim-saga-demo-springcloud-inventory</module>
         <module>tim-saga-demo-springcloud-order</module>
+        <module>tim-saga-demo-springcloud-account</module>
     </modules>
 
     <!--<properties>-->

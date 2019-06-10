@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author xiaobing
+ * <p>
+ * TransactionManager 负责实现具体的事务begin commit rollback操作
  */
 public class SagaTransactionManager {
 	private SagaConfig transactionConfig;
@@ -100,6 +102,8 @@ public class SagaTransactionManager {
 		if (transaction == null
 				|| transaction.getParticipantList() == null
 				|| transaction.getParticipantList().size() <= 0) {
+			this.successRollbackTransaction(transaction);
+
 			return;
 		}
 

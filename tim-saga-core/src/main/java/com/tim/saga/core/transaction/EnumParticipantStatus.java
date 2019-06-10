@@ -1,7 +1,7 @@
 package com.tim.saga.core.transaction;
 
 /**
- * 事务状态
+ * 事务参与方状态
  */
 public enum EnumParticipantStatus {
 	New(1),

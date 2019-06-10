@@ -4,6 +4,8 @@ import com.tim.saga.core.exception.SagaException;
 
 /**
  * @author xiaobing
+ *
+ * 序列化接口，当前用于序列化SagaParticipant
  */
 public interface ObjectSerializer {
 

@@ -2,7 +2,6 @@ package com.tim.saga.core.interceptor;
 
 import com.tim.saga.core.InvocationContext;
 import com.tim.saga.core.SagaApplicationContext;
-import com.tim.saga.core.SagaTransactionManager;
 import com.tim.saga.core.annotation.SagaParticipative;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,6 +15,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author xiaobing
+ *
+ * 处理事务参与方的切面
  */
 @Aspect
 public class SagaParticipativeAspect {

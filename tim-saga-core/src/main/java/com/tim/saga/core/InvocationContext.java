@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 /**
  * @author xiaobing
+ *
+ * 方法调用的封装，可以对方法调用的持久化
  */
 public class InvocationContext implements Serializable {
 	private static final long serialVersionUID = -8503200848355328831L;

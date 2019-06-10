@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -52,8 +53,8 @@ public class JdbcTransactionRepository implements TransactionRepository {
 		return this.jdbcTemplate.update("insert into `t_saga_transaction` (`id`, `name`,`create_time`, `last_update_time`, `status`, `application_id`, `retried_count`) values (?,?,?,?,?,?,?)",
 				transaction.getId(),
 				transaction.getName(),
-				transaction.getCreateTime(),
-				transaction.getLastUpdateTime(),
+				new Date(transaction.getCreateTime()),
+				new Date(transaction.getLastUpdateTime()),
 				transaction.getStatus().getValue(),
 				transaction.getApplicationId(),
 				transaction.getRetriedCount());
@@ -68,7 +69,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	@Override
 	public int updateTransactionStatus(SagaTransaction transaction) {
 		return this.jdbcTemplate.update("update t_saga_transaction set `last_update_time` = ?, `status` = ? where `id` = ?",
-				System.currentTimeMillis(),
+				new Date(System.currentTimeMillis()),
 				transaction.getStatus().getValue(),
 				transaction.getId());
 	}
@@ -82,7 +83,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	@Override
 	public int updateTransaction(SagaTransaction transaction) {
 		return this.jdbcTemplate.update("update `t_saga_transaction` set `last_update_time` = ?, `status` = ?, `retried_count` = ? where `id` = ?",
-				System.currentTimeMillis(),
+				new Date(System.currentTimeMillis()),
 				transaction.getStatus().getValue(),
 				transaction.getRetriedCount(),
 				transaction.getId());
@@ -101,8 +102,8 @@ public class JdbcTransactionRepository implements TransactionRepository {
 				participant.getId(),
 				participant.getTransactionId(),
 				participant.getName(),
-				participant.getCreateTime(),
-				participant.getLastUpdateTime(),
+				new Date(participant.getCreateTime()),
+				new Date(participant.getLastUpdateTime()),
 				participant.getStatus().getValue(),
 				cancelInvocationContext);
 	}
@@ -116,7 +117,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	@Override
 	public int updateParticipantStatus(SagaParticipant participant) {
 		return this.jdbcTemplate.update("update t_saga_participant set `last_update_time` = ?, `status` = ? where `id` = ?",
-				System.currentTimeMillis(),
+				new Date(System.currentTimeMillis()),
 				participant.getStatus().getValue(),
 				participant.getId());
 	}
@@ -135,7 +136,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 						"where `application_id` = ? and `last_update_time` < ? and `status` = ? and `retried_count` < ? limit ?",
 				new Object[]{
 						applicationId,
-						date.getTime(),
+						date,
 						status.getValue(),
 						maxRetriedCount,
 						limit
@@ -143,8 +144,8 @@ public class JdbcTransactionRepository implements TransactionRepository {
 					SagaTransaction transaction = new SagaTransaction();
 					transaction.setId(resultSet.getString("id"));
 					transaction.setName(resultSet.getString("name"));
-					transaction.setCreateTime(resultSet.getLong("create_time"));
-					transaction.setLastUpdateTime(resultSet.getLong("last_update_time"));
+					transaction.setCreateTime(resultSet.getDate("create_time").getTime());
+					transaction.setLastUpdateTime(resultSet.getDate("last_update_time").getTime());
 					transaction.setStatus(EnumTransactionStatus.indexOf(resultSet.getInt("status")));
 					transaction.setApplicationId(resultSet.getString("application_id"));
 					transaction.setRetriedCount(resultSet.getInt("retried_count"));
@@ -170,8 +171,8 @@ public class JdbcTransactionRepository implements TransactionRepository {
 					participant.setId(resultSet.getString("id"));
 					participant.setTransactionId(resultSet.getString("transaction_id"));
 					participant.setName(resultSet.getString("name"));
-					participant.setCreateTime(resultSet.getLong("create_time"));
-					participant.setLastUpdateTime(resultSet.getLong("last_update_time"));
+					participant.setCreateTime(resultSet.getDate("create_time").getTime());
+					participant.setLastUpdateTime(resultSet.getDate("last_update_time").getTime());
 					participant.setStatus(EnumParticipantStatus.indexOf(resultSet.getInt("status")));
 
 					InvocationContext cancelInvocationContext = this.objectSerializer.deSerialize(resultSet.getBytes("cancel_invocation_context"), InvocationContext.class);

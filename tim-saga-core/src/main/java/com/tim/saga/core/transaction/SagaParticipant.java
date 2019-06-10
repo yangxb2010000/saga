@@ -12,6 +12,8 @@ import java.util.UUID;
 
 /**
  * @author xiaobing
+ *
+ * 定义一个事务参与方
  */
 public class SagaParticipant implements Serializable {
 	private static final long serialVersionUID = -950322387106037019L;

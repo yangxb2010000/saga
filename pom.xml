@@ -21,6 +21,8 @@
         <druid.version>1.1.17</druid.version>
         <kryo.version>2.24.0</kryo.version>
         <mysql.version>8.0.16</mysql.version>
+        <springfox.version>2.6.1</springfox.version>
+        <springboot.mybatis.version>1.1.1</springboot.mybatis.version>
     </properties>
 
     <modules>
@@ -109,7 +111,6 @@
                 <artifactId>druid</artifactId>
                 <version>${druid.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.esotericsoftware.kryo</groupId>
                 <artifactId>kryo</artifactId>
@@ -119,6 +120,27 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-bean-validators</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${springboot.mybatis.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

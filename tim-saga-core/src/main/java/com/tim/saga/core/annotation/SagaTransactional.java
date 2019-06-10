@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 /**
- * 启用Saga事务的标记
+ * Saga事务边界的标记
  */
 public @interface SagaTransactional {
 	String name() default "";

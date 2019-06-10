@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author xiaobing
+ * <p>
+ * 处理定义事务的边界的切面
  */
 @Aspect
 public class SagaTransactionalAspect {
@@ -54,7 +56,6 @@ public class SagaTransactionalAspect {
 		} catch (Exception ex) {
 			sagaApplicationContext.getTransactionManager().rollback();
 			logger.debug("transaction rollback for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
-
 			throw ex;
 		} finally {
 			sagaApplicationContext.getTransactionManager().release();

@@ -8,12 +8,13 @@ import com.tim.saga.core.transaction.SagaTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author xiaobing
+ * <p>
+ * 事务恢复任务，定时检测未正常cancel的事务，执行cancel操作，保证事务的一致性
  */
 public class SagaRecoveryManager {
 	private SagaApplicationContext sagaApplicationContext;

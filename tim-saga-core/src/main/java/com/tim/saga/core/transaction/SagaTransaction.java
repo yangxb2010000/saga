@@ -9,6 +9,8 @@ import java.util.UUID;
 
 /**
  * @author xiaobing
+ *
+ * 定义一个事务
  */
 public class SagaTransaction implements Serializable {
 	private static final long serialVersionUID = 8457659281204985797L;

@@ -36,7 +36,6 @@ public class SagaRecoverAutoConfiguration {
 
 		@Scheduled(fixedRate = 5000)
 		public void scheduleRecover() {
-			System.out.println("starting recover");
 			sagaRecoveryManager.startRecover();
 		}
 	}

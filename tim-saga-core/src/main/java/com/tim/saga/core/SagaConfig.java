@@ -6,6 +6,8 @@ import oracle.jrockit.jfr.Recording;
 
 /**
  * @author xiaobing
+ * <p>
+ * Saga配置类
  */
 @Data
 @Builder
