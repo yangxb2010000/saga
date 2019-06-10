@@ -13,7 +13,7 @@ spring:
   application:
     name: account-service
   datasource:
-    url: jdbc:mysql://localhost:3306/saga-account
+    url: jdbc:mysql://localhost:3306/saga_account
     username: root
     password: 123456
 mybatis:

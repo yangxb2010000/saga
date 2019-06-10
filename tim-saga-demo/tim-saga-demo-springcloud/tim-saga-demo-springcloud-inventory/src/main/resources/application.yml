@@ -13,7 +13,7 @@ spring:
   application:
     name: inventory-service
   datasource:
-    url: jdbc:mysql://localhost:3306/saga-inventory
+    url: jdbc:mysql://localhost:3306/saga_inventory
     username: root
     password: 123456
 mybatis:
