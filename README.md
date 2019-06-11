@@ -62,3 +62,5 @@ Java saga分布式事务
 * 本项目参考了[tcc-transaction](https://github.com/changmingxie/tcc-transaction) 和[hmily](https://github.com/yu199195/hmily)的实现
 * 欢迎大家指正系统中代码或者设计上的问题，
 ## 使用到的框架
+## 联系我
+关于项目的任何问题都可以联系我:371496462@qq.com
