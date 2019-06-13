@@ -11,6 +11,10 @@
 
     <artifactId>tim-saga-spring-boot-starter</artifactId>
 
+    <properties>
+        <tim.saga.version>1.0-SNAPSHOT</tim.saga.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -27,6 +31,7 @@
         <dependency>
             <groupId>com.tim</groupId>
             <artifactId>tim-saga-core</artifactId>
+            <version>${tim.saga.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
