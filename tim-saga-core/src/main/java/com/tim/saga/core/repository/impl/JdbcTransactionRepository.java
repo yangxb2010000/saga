@@ -50,7 +50,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public int create(SagaTransaction transaction) {
-		return this.jdbcTemplate.update("insert into `t_saga_transaction` (`id`, `name`,`create_time`, `last_update_time`, `status`, `application_id`, `retried_count`) values (?,?,?,?,?,?,?)",
+		return this.jdbcTemplate.update("insert into `t_saga_transaction` (`transaction_id`, `name`,`create_time`, `last_update_time`, `status`, `application_id`, `retried_count`) values (?,?,?,?,?,?,?)",
 				transaction.getId(),
 				transaction.getName(),
 				new Date(transaction.getCreateTime()),
@@ -68,7 +68,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public int updateTransactionStatus(SagaTransaction transaction) {
-		return this.jdbcTemplate.update("update t_saga_transaction set `last_update_time` = ?, `status` = ? where `id` = ?",
+		return this.jdbcTemplate.update("update t_saga_transaction set `last_update_time` = ?, `status` = ? where `transaction_id` = ?",
 				new Date(System.currentTimeMillis()),
 				transaction.getStatus().getValue(),
 				transaction.getId());
@@ -82,7 +82,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public int updateTransaction(SagaTransaction transaction) {
-		return this.jdbcTemplate.update("update `t_saga_transaction` set `last_update_time` = ?, `status` = ?, `retried_count` = ? where `id` = ?",
+		return this.jdbcTemplate.update("update `t_saga_transaction` set `last_update_time` = ?, `status` = ?, `retried_count` = ? where `transaction_id` = ?",
 				new Date(System.currentTimeMillis()),
 				transaction.getStatus().getValue(),
 				transaction.getRetriedCount(),
@@ -98,7 +98,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	@Override
 	public int addParticipant(SagaParticipant participant) {
 		byte[] cancelInvocationContext = this.objectSerializer.serialize(participant.getCancelInvocationContext());
-		return this.jdbcTemplate.update("insert into `t_saga_participant` (`id`, `transaction_id`, `name`, `create_time`, `last_update_time`, `status`, `cancel_invocation_context`) values (?,?,?,?,?,?,?)",
+		return this.jdbcTemplate.update("insert into `t_saga_participant` (`participant_id`, `transaction_id`, `name`, `create_time`, `last_update_time`, `status`, `cancel_invocation_context`) values (?,?,?,?,?,?,?)",
 				participant.getId(),
 				participant.getTransactionId(),
 				participant.getName(),
@@ -116,7 +116,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public int updateParticipantStatus(SagaParticipant participant) {
-		return this.jdbcTemplate.update("update t_saga_participant set `last_update_time` = ?, `status` = ? where `id` = ?",
+		return this.jdbcTemplate.update("update t_saga_participant set `last_update_time` = ?, `status` = ? where `participant_id` = ?",
 				new Date(System.currentTimeMillis()),
 				participant.getStatus().getValue(),
 				participant.getId());
@@ -132,7 +132,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public List<SagaTransaction> findUnmodifiedSince(String applicationId, Date date, EnumTransactionStatus status, int maxRetriedCount, int limit) {
-		return this.jdbcTemplate.query("select `id`, `name`,`create_time`, `last_update_time`, `status`, `application_id`, `retried_count` from t_saga_transaction " +
+		return this.jdbcTemplate.query("select `transaction_id`, `name`,`create_time`, `last_update_time`, `status`, `application_id`, `retried_count` from t_saga_transaction " +
 						"where `application_id` = ? and `last_update_time` < ? and `status` = ? and `retried_count` < ? limit ?",
 				new Object[]{
 						applicationId,
@@ -142,7 +142,7 @@ public class JdbcTransactionRepository implements TransactionRepository {
 						limit
 				}, (resultSet, i) -> {
 					SagaTransaction transaction = new SagaTransaction();
-					transaction.setId(resultSet.getString("id"));
+					transaction.setId(resultSet.getString("transaction_id"));
 					transaction.setName(resultSet.getString("name"));
 					transaction.setCreateTime(resultSet.getDate("create_time").getTime());
 					transaction.setLastUpdateTime(resultSet.getDate("last_update_time").getTime());
@@ -161,14 +161,14 @@ public class JdbcTransactionRepository implements TransactionRepository {
 	 */
 	@Override
 	public List<SagaParticipant> getAllUnCanceledParticipant(String transactionId) {
-		return this.jdbcTemplate.query("select `id`, `transaction_id`, `name`, `create_time`, `last_update_time`, `status`, `cancel_invocation_context` from t_saga_participant" +
+		return this.jdbcTemplate.query("select `participant_id`, `transaction_id`, `name`, `create_time`, `last_update_time`, `status`, `cancel_invocation_context` from t_saga_participant" +
 						" where `transaction_id` = ? and `status` = ? ",
 				new Object[]{
 						transactionId,
 						EnumParticipantStatus.New.getValue()
 				}, (resultSet, i) -> {
 					SagaParticipant participant = new SagaParticipant();
-					participant.setId(resultSet.getString("id"));
+					participant.setId(resultSet.getString("participant_id"));
 					participant.setTransactionId(resultSet.getString("transaction_id"));
 					participant.setName(resultSet.getString("name"));
 					participant.setCreateTime(resultSet.getDate("create_time").getTime());

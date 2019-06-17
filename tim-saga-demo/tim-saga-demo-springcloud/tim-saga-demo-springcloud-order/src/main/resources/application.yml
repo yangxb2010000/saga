@@ -25,6 +25,8 @@ spring:
     recover:
       enable: true
       recover-duration: 300
+    async-cancel: true
+    concurrent-cancel: true
 logging:
   level:
     com.tim: DEBUG
