@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @ConditionalOnClass(SagaTransactionManager.class)
-@ConditionalOnProperty(prefix = "spring.saga", name = "enable", havingValue = "true")
+@ConditionalOnProperty(prefix = "spring.saga", name = "enable", havingValue = "true", matchIfMissing = true)
 @Import({SagaCoreAutoConfiguration.class, SagaRecoverAutoConfiguration.class})
 public class SagaAutoConfiguration {
 

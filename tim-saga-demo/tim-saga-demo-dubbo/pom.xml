@@ -6,6 +6,7 @@
         <artifactId>tim-saga-demo</artifactId>
         <groupId>com.tim</groupId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,68 +15,41 @@
     <modules>
         <module>tim-saga-demo-dubbo-inventory</module>
         <module>tim-saga-demo-dubbo-inventory-api</module>
+        <module>tim-saga-demo-dubbo-account-api</module>
+        <module>tim-saga-demo-dubbo-account</module>
+        <module>tim-saga-demo-dubbo-order-api</module>
+        <module>tim-saga-demo-dubbo-order</module>
+        <module>tim-saga-demo-dubbo-order-web</module>
     </modules>
 
-    <properties>
-        <dubbo.version>2.7.1</dubbo.version>
-        <dubbo.demo.version>1.0-SNAPSHOT</dubbo.demo.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo</artifactId>
-                <version>${dubbo.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo-dependencies-bom</artifactId>
-                <version>${dubbo.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>com.tim</groupId>
                 <artifactId>tim-saga-demo-dubbo-inventory-api</artifactId>
-                <version>${dubbo.demo.version}</version>
+                <version>${saga.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tim</groupId>
+                <artifactId>tim-saga-demo-dubbo-account-api</artifactId>
+                <version>${saga.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tim</groupId>
+                <artifactId>tim-saga-demo-dubbo-order-api</artifactId>
+                <version>${saga.version}</version>
             </dependency>
         </dependencies>
-
-
     </dependencyManagement>
 
     <dependencies>
-        <!-- Dubbo Spring Boot Starter -->
         <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-spring-boot-starter</artifactId>
-            <version>2.7.1</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.tim</groupId>
-            <artifactId>tim-saga-core</artifactId>
+            <artifactId>tim-saga-dubbo</artifactId>
         </dependency>
     </dependencies>
 </project>

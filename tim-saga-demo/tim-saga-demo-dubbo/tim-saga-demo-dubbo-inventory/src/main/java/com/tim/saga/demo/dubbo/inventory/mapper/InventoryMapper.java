@@ -17,8 +17,8 @@
 
 package com.tim.saga.demo.dubbo.inventory.mapper;
 
-import com.tim.saga.demo.springcloud.inventory.dto.InventoryDTO;
-import com.tim.saga.demo.springcloud.inventory.entity.InventoryDO;
+import com.tim.saga.demo.dubbo.inventory.api.InventoryDTO;
+import com.tim.saga.demo.dubbo.inventory.entity.InventoryDO;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 

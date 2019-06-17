@@ -29,8 +29,8 @@ CREATE TABLE `t_saga_participant` (
   `id` varchar(50) NOT NULL,
   `transaction_id` varchar(50) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `create_time` bigint(20) NOT NULL,
-  `last_update_time` bigint(20) NOT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `last_update_time` datetime(3) NOT NULL,
   `status` int(11) NOT NULL,
   `cancel_invocation_context` mediumblob NOT NULL,
   PRIMARY KEY (`id`)
@@ -42,8 +42,8 @@ CREATE TABLE `t_saga_participant` (
 DROP TABLE IF EXISTS `t_saga_transaction`;
 CREATE TABLE `t_saga_transaction` (
   `id` varchar(50) NOT NULL,
-  `create_time` bigint(20) NOT NULL,
-  `last_update_time` bigint(20) NOT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `last_update_time` datetime(3) NOT NULL,
   `name` varchar(255) NOT NULL,
   `status` int(11) NOT NULL,
   `application_id` varchar(255) NOT NULL,
