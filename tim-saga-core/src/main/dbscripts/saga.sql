@@ -26,29 +26,32 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `t_saga_participant`;
 CREATE TABLE `t_saga_participant` (
-  `id` varchar(50) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `participant_id` varchar(50) NOT NULL,
   `transaction_id` varchar(50) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `create_time` bigint(20) NOT NULL,
-  `last_update_time` bigint(20) NOT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `last_update_time` datetime(3) NOT NULL,
   `status` int(11) NOT NULL,
   `cancel_invocation_context` mediumblob NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `IDX_UNIQUE_PARTICIPANTID` (`participant_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for t_saga_transaction
 -- ----------------------------
 DROP TABLE IF EXISTS `t_saga_transaction`;
 CREATE TABLE `t_saga_transaction` (
-  `id` varchar(50) NOT NULL,
-  `create_time` bigint(20) NOT NULL,
-  `last_update_time` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` varchar(50) NOT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `last_update_time` datetime(3) NOT NULL,
   `name` varchar(255) NOT NULL,
   `status` int(11) NOT NULL,
   `application_id` varchar(255) NOT NULL,
   `retried_count` int(11) NOT NULL,
-  PRIMARY KEY (`id`,`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-SET FOREIGN_KEY_CHECKS = 1;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `IDX_UNIQUE_TRANSACTIONID` (`transaction_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4;
+SET FOREIGN_KEY_CHECKS=1;

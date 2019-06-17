@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/saga_order
+    username: root
+    password: 123456
+  saga:
+    repository:
+      jdbc:
+        url: jdbc:mysql://localhost:3306/saga
+        user-name: root
+        password: 123456
+    recover:
+      enable: true
+      recover-duration: 300
+mybatis:
+  type-aliases-package: com.tim.saga.demo.dubbo.order.entity
+  config-location: classpath:mybatis/mybatis-config.xml
+dubbo:
+  scan:
+    base-packages: com.tim.saga.demo.dubbo.order.service
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: zookeeper://localhost:2181

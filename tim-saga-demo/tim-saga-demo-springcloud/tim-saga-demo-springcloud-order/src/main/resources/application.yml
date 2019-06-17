@@ -17,7 +17,6 @@ spring:
     username: root
     password: 123456
   saga:
-    enable: true
     repository:
       jdbc:
         url: jdbc:mysql://localhost:3306/saga
@@ -26,6 +25,8 @@ spring:
     recover:
       enable: true
       recover-duration: 300
+    async-cancel: true
+    concurrent-cancel: true
 logging:
   level:
     com.tim: DEBUG

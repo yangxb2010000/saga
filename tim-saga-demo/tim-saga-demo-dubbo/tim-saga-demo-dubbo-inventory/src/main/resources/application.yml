@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: inventory-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/saga_inventory
+    username: root
+    password: 123456
+mybatis:
+  type-aliases-package: com.tim.saga.demo.dubbo.inventory.entity
+  config-location: classpath:mybatis/mybatis-config.xml
+dubbo:
+  scan:
+    base-packages: com.tim.saga.demo.dubbo.inventory.service
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: zookeeper://localhost:2181

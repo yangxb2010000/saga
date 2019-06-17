@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>tim-saga-demo</artifactId>
+        <groupId>com.tim</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>tim-saga-demo-dubbo</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>tim-saga-demo-dubbo-inventory</module>
+        <module>tim-saga-demo-dubbo-inventory-api</module>
+        <module>tim-saga-demo-dubbo-account-api</module>
+        <module>tim-saga-demo-dubbo-account</module>
+        <module>tim-saga-demo-dubbo-order-api</module>
+        <module>tim-saga-demo-dubbo-order</module>
+        <module>tim-saga-demo-dubbo-order-web</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.tim</groupId>
+                <artifactId>tim-saga-demo-dubbo-inventory-api</artifactId>
+                <version>${saga.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tim</groupId>
+                <artifactId>tim-saga-demo-dubbo-account-api</artifactId>
+                <version>${saga.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tim</groupId>
+                <artifactId>tim-saga-demo-dubbo-order-api</artifactId>
+                <version>${saga.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tim</groupId>
+            <artifactId>tim-saga-dubbo</artifactId>
+        </dependency>
+    </dependencies>
+</project>

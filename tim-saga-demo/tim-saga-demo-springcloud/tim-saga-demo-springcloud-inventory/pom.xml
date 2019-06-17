@@ -26,12 +26,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.tim</groupId>
-            <artifactId>tim-saga-spring-boot-starter</artifactId>
-            <version>${saga.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>${spring.cloud.version}</version>

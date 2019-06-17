@@ -15,44 +15,44 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author xiaobing
- *
+ * <p>
  * 处理事务参与方的切面
  */
 @Aspect
 public class SagaParticipativeAspect {
-	private static Logger logger = LoggerFactory.getLogger(SagaParticipativeAspect.class);
+    private static Logger logger = LoggerFactory.getLogger(SagaParticipativeAspect.class);
 
-	private SagaApplicationContext sagaApplicationContext;
+    private SagaApplicationContext sagaApplicationContext;
 
-	public SagaParticipativeAspect(SagaApplicationContext sagaApplicationContext) {
-		this.sagaApplicationContext = sagaApplicationContext;
-	}
+    public SagaParticipativeAspect(SagaApplicationContext sagaApplicationContext) {
+        this.sagaApplicationContext = sagaApplicationContext;
+    }
 
-	@Pointcut("@annotation(com.tim.saga.core.annotation.SagaParticipative)")
-	public void sagaParticipativePointcut() {
-	}
+    @Pointcut("@annotation(com.tim.saga.core.annotation.SagaParticipative)")
+    public void sagaParticipativePointcut() {
+    }
 
-	@Around("sagaParticipativePointcut()")
-	public void around(ProceedingJoinPoint point) throws Throwable {
-		MethodSignature signature = (MethodSignature) point.getSignature();
+    @Around("sagaParticipativePointcut()")
+    public void around(ProceedingJoinPoint point) throws Throwable {
+        MethodSignature signature = (MethodSignature) point.getSignature();
 
-		logger.debug("transaction begin for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
+        SagaParticipative sagaParticipative = signature.getMethod().getAnnotation(SagaParticipative.class);
 
-		SagaParticipative sagaParticipative = signature.getMethod().getAnnotation(SagaParticipative.class);
+        SagaParticipativeInterceptor.AspectAnnotationInfo annotationInfo = SagaParticipativeInterceptor.AspectAnnotationInfo
+                .builder()
+                .participativeAnnotation(sagaParticipative)
+                .clazz(signature.getDeclaringType())
+                .method(signature.getMethod())
+                .args(point.getArgs())
+                .build();
 
-		String participantName = sagaParticipative.name();
-		if (StringUtils.isEmpty(participantName)) {
-			participantName = signature.getDeclaringTypeName() + ":" + signature.getMethod().getName();
-		}
-
-		Assert.notNull(sagaParticipative.cancelMethod(), "Cancel method for SagaParticipative cannot be null");
-
-		InvocationContext cancelInvocationContext = new InvocationContext(signature.getDeclaringType(), sagaParticipative.cancelMethod(), signature.getParameterTypes(), point.getArgs());
-
-		sagaApplicationContext.getTransactionManager().enlistParticipant(participantName, cancelInvocationContext);
-
-		logger.debug("enlist Participant class: {}, method: {} to transaction", signature.getDeclaringTypeName(), signature.getMethod().getName());
-
-		point.proceed();
-	}
+        SagaParticipativeInterceptor.intercept(this.sagaApplicationContext, () -> {
+            try {
+                point.proceed();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+            return null;
+        }, annotationInfo);
+    }
 }

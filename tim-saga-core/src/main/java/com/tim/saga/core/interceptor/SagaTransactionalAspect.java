@@ -7,9 +7,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * @author xiaobing
@@ -18,49 +15,33 @@ import org.springframework.util.StringUtils;
  */
 @Aspect
 public class SagaTransactionalAspect {
-	private static Logger logger = LoggerFactory.getLogger(SagaTransactionalAspect.class);
-	private SagaApplicationContext sagaApplicationContext;
+    private SagaApplicationContext sagaApplicationContext;
 
-	public SagaTransactionalAspect(SagaApplicationContext sagaApplicationContext) {
-		this.sagaApplicationContext = sagaApplicationContext;
-	}
+    public SagaTransactionalAspect(SagaApplicationContext sagaApplicationContext) {
+        this.sagaApplicationContext = sagaApplicationContext;
+    }
 
-	@Pointcut("@annotation(com.tim.saga.core.annotation.SagaTransactional)")
-	public void sagaTransactionalPointcut() {
-	}
+    @Pointcut("@annotation(com.tim.saga.core.annotation.SagaTransactional)")
+    public void sagaTransactionalPointcut() {
+    }
 
-	@Around("sagaTransactionalPointcut()")
-	public void around(ProceedingJoinPoint point) throws Throwable {
-		MethodSignature signature = (MethodSignature) point.getSignature();
+    @Around("sagaTransactionalPointcut()")
+    public void around(ProceedingJoinPoint point) {
+        MethodSignature signature = (MethodSignature) point.getSignature();
+        SagaTransactional sagaTransactional = signature.getMethod().getAnnotation(SagaTransactional.class);
 
-		logger.debug("transaction begin for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
+        SagaTransactionalInterceptor.AspectAnnotationInfo annotationInfo = SagaTransactionalInterceptor.AspectAnnotationInfo.builder()
+                .transactionalAnnotation(sagaTransactional)
+                .clazz(signature.getDeclaringType())
+                .method(signature.getMethod())
+                .build();
 
-		SagaTransactional sagaTransactional = signature.getMethod().getAnnotation(SagaTransactional.class);
-
-		String transactionName = sagaTransactional.name();
-		if (StringUtils.isEmpty(transactionName)) {
-			transactionName = signature.getDeclaringTypeName() + ":" + signature.getMethod().getName();
-		}
-
-		logger.debug("transaction begin for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
-
-		try {
-			sagaApplicationContext.getTransactionManager().begin(transactionName);
-
-			point.proceed();
-
-			sagaApplicationContext.getTransactionManager().commit();
-
-			logger.debug("transaction rollback for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
-
-		} catch (Exception ex) {
-			sagaApplicationContext.getTransactionManager().rollback();
-			logger.debug("transaction rollback for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
-			throw ex;
-		} finally {
-			sagaApplicationContext.getTransactionManager().release();
-
-			logger.debug("transaction release for class: {}, method: {}", signature.getDeclaringType(), signature.getName());
-		}
-	}
+        SagaTransactionalInterceptor.intercept(this.sagaApplicationContext, () -> {
+            try {
+                return point.proceed();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }, annotationInfo);
+    }
 }

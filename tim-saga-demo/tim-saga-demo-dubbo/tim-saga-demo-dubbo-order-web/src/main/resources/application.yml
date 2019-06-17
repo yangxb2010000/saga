@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: order-web
+server:
+  port: 20086
+dubbo:
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: zookeeper://localhost:2181
