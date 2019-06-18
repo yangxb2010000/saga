@@ -47,6 +47,14 @@
             <artifactId>kryo</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.dingtalk</groupId>
+            <artifactId>dingtalk</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/taobao-sdk-java-auto_1479188381469-20190614.jar
+            </systemPath>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,6 +65,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

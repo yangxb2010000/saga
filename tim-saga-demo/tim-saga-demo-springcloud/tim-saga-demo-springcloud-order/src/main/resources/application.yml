@@ -25,8 +25,12 @@ spring:
     recover:
       enable: true
       recover-duration: 300
+      fail-recover-alert:
+        dingding:
+          web-hook-url: "https://oapi.dingtalk.com/robot/send?access_token=5a3912f94a93396d4b81136f838ab075b1571e5df89706d308783e1ae7885d16"
     async-cancel: true
     concurrent-cancel: true
+    wait-concurrent-cancel-timeout-in-ms: 60000
 logging:
   level:
     com.tim: DEBUG

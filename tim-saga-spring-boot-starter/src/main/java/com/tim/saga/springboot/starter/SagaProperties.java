@@ -62,6 +62,21 @@ public class SagaProperties {
 		 * 一次任务处理多少个事务
 		 */
 		private int batchHandleTransactionCount;
+
+		/**
+		 * 事务恢复失败的报警
+		 */
+		private FailRecoverAlertProperties failRecoverAlert;
+	}
+
+	@Data
+	public static class FailRecoverAlertProperties {
+		private DingDingFailRecoverAlert dingding;
+	}
+
+	@Data
+	public static class DingDingFailRecoverAlert{
+		private String webHookUrl;
 	}
 
 	@Data

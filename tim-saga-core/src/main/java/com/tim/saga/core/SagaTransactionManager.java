@@ -8,11 +8,20 @@ import com.tim.saga.core.transaction.SagaParticipant;
 import com.tim.saga.core.transaction.SagaTransaction;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Synchronized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * @author xiaobing
@@ -20,6 +29,8 @@ import java.util.concurrent.TimeUnit;
  * TransactionManager 负责实现具体的事务begin commit rollback操作
  */
 public class SagaTransactionManager {
+	private static final Logger logger = LoggerFactory.getLogger(SagaTransactionManager.class);
+
 	private SagaConfig transactionConfig;
 	private TransactionRepository transactionRepository;
 	private ExecutorService executorService;
@@ -109,28 +120,19 @@ public class SagaTransactionManager {
 
 		if (this.transactionConfig.isConcurrentCancel()) {
 			//并发执行cancel
-			CountDownLatch countDownLatch = new CountDownLatch(transaction.getParticipantList().size());
-			for (SagaParticipant participant : transaction.getParticipantList()) {
-				this.executorService.submit(() -> {
-					this.cancelParticipant(participant);
-					countDownLatch.countDown();
-				});
-			}
-
-			try {
-				if (countDownLatch.await(this.transactionConfig.getWaitConcurrentCancelTimeoutInMs(), TimeUnit.MILLISECONDS)) {
-					this.successRollbackTransaction(transaction);
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			concurrentInvokeCancel(transaction);
 		} else {
 			//同步执行cancel
-			for (SagaParticipant participant : transaction.getParticipantList()) {
-				this.cancelParticipant(participant);
-			}
+			try {
+				for (SagaParticipant participant : transaction.getParticipantList()) {
+					this.cancelParticipant(participant);
+				}
 
-			this.successRollbackTransaction(transaction);
+				this.successRollbackTransaction(transaction);
+			} catch (Exception ex) {
+				this.failRollbackTransaction(transaction);
+				throw ex;
+			}
 		}
 	}
 
@@ -196,8 +198,60 @@ public class SagaTransactionManager {
 	 */
 	private void successRollbackTransaction(SagaTransaction transaction) {
 		transaction.setStatus(EnumTransactionStatus.Rollback);
+		transaction.setLastUpdateTime(System.currentTimeMillis());
+
 		this.transactionRepository.updateTransaction(transaction);
 	}
+
+	/**
+	 * 调用参与方的cancel操作成功之后 更新Transaction状态
+	 *
+	 * @param transaction
+	 */
+	private void failRollbackTransaction(SagaTransaction transaction) {
+		transaction.setRetriedCount(transaction.getRetriedCount() + 1);
+		transaction.setLastUpdateTime(System.currentTimeMillis());
+
+		this.transactionRepository.updateTransaction(transaction);
+	}
+
+	/**
+	 * 并行调用cancel方法
+	 * @param transaction
+	 */
+	private void concurrentInvokeCancel(SagaTransaction transaction) {
+		//并发执行cancel
+		CountDownLatch countDownLatch = new CountDownLatch(transaction.getParticipantList().size());
+		List<Exception> exceptionList = Collections.synchronizedList(new ArrayList<>());
+
+		for (SagaParticipant participant : transaction.getParticipantList()) {
+			this.executorService.submit(() -> {
+				try{
+					this.cancelParticipant(participant);
+				} catch (Exception ex) {
+					exceptionList.add(ex);
+					logger.error("failed to cancel participant: {}", participant.getId(), ex);
+				} finally {
+					countDownLatch.countDown();
+				}
+			});
+		}
+
+		try {
+			if (countDownLatch.await(this.transactionConfig.getWaitConcurrentCancelTimeoutInMs(), TimeUnit.MILLISECONDS)) {
+				if (exceptionList.size() > 0) {
+					this.failRollbackTransaction(transaction);
+					// 把第一个异常抛出
+					throw new RuntimeException(exceptionList.get(0));
+				} else {
+					this.successRollbackTransaction(transaction);
+				}
+			}
+		} catch (InterruptedException e) {
+			logger.error("interrupted when rollback transaction: {}", transaction.getId(), e);
+		}
+	}
+
 
 	@Data
 	@Builder

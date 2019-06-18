@@ -19,7 +19,7 @@
     </modules>
 
     <!--<properties>-->
-        <!--<spring.cloud.version>Greenwich.SR1</spring.cloud.version>-->
+    <!--<spring.cloud.version>Greenwich.SR1</spring.cloud.version>-->
     <!--</properties>-->
 
     <build>
@@ -34,6 +34,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
