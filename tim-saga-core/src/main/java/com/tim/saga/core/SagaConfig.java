@@ -71,6 +71,7 @@ public class SagaConfig {
          * 一次任务处理多少个事务
          */
         private int batchHandleTransactionCount;
+
     }
 
     @Data

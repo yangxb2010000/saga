@@ -25,6 +25,12 @@
         <springboot.mybatis.version>1.1.1</springboot.mybatis.version>
         <dubbo.version>2.7.1</dubbo.version>
         <zookeeper.version>3.4.13</zookeeper.version>
+
+        <!-- 文件拷贝时的编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- 编译时的编码 -->
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     </properties>
 
     <modules>

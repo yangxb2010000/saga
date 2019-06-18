@@ -3,6 +3,7 @@ Java saga分布式事务
 ## 分布式事务的核心要点
 * 事务的持久化，事务只有持久化了才能在宕机的时候，根据持久化事务的状态来执行回滚操作，实现最终一致性
 * 参与方的cancel操作的幂等性，因为事务cancel的时候可能会多次尝试，所以接口需要实现幂等操作
+* 需要定时任务定时恢复因为异常没有达到数据一致性的事务，同时要考虑定时任务多实例时对事务的争抢逻辑
 ## 本项目实现功能
 * 基于saga协议的分布式事务实现
 * 支持异步cancel， 同时支持并发cancel，尽可能减少对系统的性能影响
@@ -34,13 +35,16 @@ Java saga分布式事务
 #### tim-saga
 #### 优点
 * 通过SagaTransactional和SagaParticipative 两个注解来定义事务更清晰
-* 性能相对还可以
+* 性能相对还可以，（如果觉得性能不够高，可以考虑写事务和更新事务时写入消息队列），但是之久化一定要保证
 * 事务可靠性高
+* 事务恢复的定时任务job获取transaction时使用了悲观锁，防止同一个tranaction被多个job实例执行恢复
+* 事务达到重试上限，需要人工介入时支持报警，当前支持钉钉报警
 * 逻辑简单，方便调试，找bug
 #### 缺点
 * 刚开始做，可能会有bug
 * 需要在接口层面实现cancel方法，业务侵入性相对更大一些吧
 * 事务嵌套支持较弱，只支持PROPAGATION_REQUIRED。 但是应该能满足绝大部分的场景了吧
+* 不支持在rp链式c调用中传递事务
 ## TODO：
 * dashboard / admin 事务的可视化以及管理
 ## 上手指南
@@ -49,7 +53,7 @@ Java saga分布式事务
 * SagaParticipative注解：定义事务参与方，该标记设置cancelMethod，如果未设置，则事务回滚时什么也不做
 * ApplicationId: 如果多个应用程序使用同一个saga持久化数据，在事务恢复的时候需要指定applicationId来获取待恢复的事务，防止
 ### 运行demo
-* 运行 mvn install
+* 运行 mvn clean install -DskipTests
 * 执行 ./tim-saga-core/src/main/dbscripts/saga.sql 创建事务表结构
 * 执行 ./time-saga-demo/dbscripts/saga-demo.sql 创建demo的数据库、表结构和初始化数据
 * 如果数据库地址不是localhost:3036，就修改account inventory order项目下的数据库配置，如果为localhost:3036，则无需修改

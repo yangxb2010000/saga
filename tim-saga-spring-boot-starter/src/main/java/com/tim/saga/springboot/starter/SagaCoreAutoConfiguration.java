@@ -6,11 +6,13 @@ import com.tim.saga.core.SagaConfig;
 import com.tim.saga.core.SagaTransactionManager;
 import com.tim.saga.core.interceptor.SagaParticipativeAspect;
 import com.tim.saga.core.interceptor.SagaTransactionalAspect;
+import com.tim.saga.core.recovery.FailRecoverAlert;
 import com.tim.saga.core.repository.TransactionRepository;
 import com.tim.saga.core.serializer.ObjectSerializer;
 import com.tim.saga.core.serializer.imp.KyroSerializer;
 import com.tim.saga.core.support.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.util.Assert;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,12 +53,14 @@ public class SagaCoreAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SagaApplicationContext.class)
 	public SagaApplicationContext sagaApplicationContext(SagaTransactionManager sagaTransactionManager,
-	                                                     SagaConfig sagaConfig,
-	                                                     TransactionRepository transactionRepository) {
-		return SagaApplicationContext.builder()
+														 SagaConfig sagaConfig,
+														 TransactionRepository transactionRepository) {
+		SagaApplicationContext.SagaApplicationContextBuilder builder = SagaApplicationContext.builder()
 				.sagaConfig(sagaConfig)
 				.transactionManager(sagaTransactionManager)
-				.transactionRepository(transactionRepository).build();
+				.transactionRepository(transactionRepository);
+
+		return builder.build();
 	}
 
 	@Bean
