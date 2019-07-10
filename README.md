@@ -5,12 +5,9 @@ Java saga分布式事务
 * 参与方的cancel操作的幂等性，因为事务cancel的时候可能会多次尝试，所以接口需要实现幂等操作
 * 需要定时任务定时恢复因为异常没有达到数据一致性的事务，同时要考虑定时任务多实例时对事务的争抢逻辑
 ## 本项目实现功能
-* 基于saga协议的分布式事务实现
-* 支持异步cancel， 同时支持并发cancel，尽可能减少对系统的性能影响
-* 支持spring cloud（dubbo待实现）
-## 对比 tcc-transaction hmily
-因为上述两个分布式事务都是tcc事务，本质上可能没有对比性，但是都属于同步的柔性事务，对于业务代码来说都有侵入性，所以还是对比一下吧。
-#### 当然这个只是个人的一面之词，如有不正确的地方，欢迎大家批评指正。
+* 并不是一个严格意义上的saga模型，更像是一个tcc模型的变种，把tcc的try、confirm/cancel 两部操作修改为一步操作
+* 支持异步cancel， 同时支持并行cancel，尽可能减少对系统的性能影响
+* 支持spring cloud、dubbo
 ### tcc vs saga
 * tcc是try confirm cancel, 所以无论事务成功失败，都需要与每一个服务进行至少两次的交互，性能相对较差。（可以通过异步confirm cancel提升性能)
 * tcc每个事务参与方需要提供三个方法
@@ -35,7 +32,7 @@ Java saga分布式事务
 #### tim-saga
 #### 优点
 * 通过SagaTransactional和SagaParticipative 两个注解来定义事务更清晰
-* 性能相对还可以，（如果觉得性能不够高，可以考虑写事务和更新事务时写入消息队列），但是之久化一定要保证
+* 性能相对还可以，（如果觉得性能不够高，可以考虑写事务和更新事务时写入消息队列），但是持久化一定要保证
 * 事务可靠性高
 * 事务恢复的定时任务job获取transaction时使用了悲观锁，防止同一个tranaction被多个job实例执行恢复
 * 事务达到重试上限，需要人工介入时支持报警，当前支持钉钉报警
@@ -44,14 +41,16 @@ Java saga分布式事务
 * 刚开始做，可能会有bug
 * 需要在接口层面实现cancel方法，业务侵入性相对更大一些吧
 * 事务嵌套支持较弱，只支持PROPAGATION_REQUIRED。 但是应该能满足绝大部分的场景了吧
-* 不支持在rp链式c调用中传递事务
+* 不支持在rpc事务传递，即不支持A->B->C这样需要事务传递的场景
 ## TODO：
 * dashboard / admin 事务的可视化以及管理
 ## 上手指南
 ### 基本概念
 * SagaTransactional注解：定义事务边界，当前支持事务嵌套，但是只有最外层事务才会提交或者回滚
 * SagaParticipative注解：定义事务参与方，该标记设置cancelMethod，如果未设置，则事务回滚时什么也不做
-* ApplicationId: 如果多个应用程序使用同一个saga持久化数据，在事务恢复的时候需要指定applicationId来获取待恢复的事务，防止
+* ApplicationId: 如果多个应用程序使用同一个saga持久化数据，在事务恢复的时候需要指定applicationId来获取需要恢复的事务
+* SagaTransactionalAspect：拦截SagaTransactional注解的方法，负责创建、提交或者回滚事务
+* SagaParticipativeAspect：拦截SagaParticipative注解的方法，负责把当前操作作为事务参与方添加到事务中
 ### 运行demo
 * 运行 mvn clean install -DskipTests
 * 执行 ./tim-saga-core/src/main/dbscripts/saga.sql 创建事务表结构
@@ -60,6 +59,8 @@ Java saga分布式事务
 * 修改 ./tim-saga-demo/tim-saga-demo-springcloud/tim-saga-demo-springcloud-orderservice/项目下的application.yml中的数据库配置
 * 启动 ./tim-saga-demo/tim-saga-demo-springcloud/ 目录下三个程序 account inventory order
 * 访问 http://localhost:10087/swagger-ui.html 尝试各种支付订单的方法
+### Demo的时序图
+
 ## 测试
 ## 部署
 ## 鸣谢
