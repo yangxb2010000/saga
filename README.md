@@ -61,6 +61,12 @@ Java saga分布式事务
 * 访问 http://localhost:10087/swagger-ui.html 尝试各种支付订单的方法
 ### Demo的时序图
 
+#### 正常流程的时序图
+![正常流程时序图](https://github.com/yangxb2010000/saga/blob/master/doc/saga-demo%E6%AD%A3%E5%B8%B8%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
+
+#### 异常流程的时序图
+![异常流程时序图](https://github.com/yangxb2010000/saga/blob/master/doc/saga-demo%E5%BC%82%E5%B8%B8%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
+
 ## 测试
 ## 部署
 ## 鸣谢
