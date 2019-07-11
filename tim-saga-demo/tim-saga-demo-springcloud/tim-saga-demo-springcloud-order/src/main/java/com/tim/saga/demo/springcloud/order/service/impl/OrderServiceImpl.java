@@ -17,6 +17,7 @@
 
 package com.tim.saga.demo.springcloud.order.service.impl;
 
+import com.tim.saga.core.annotation.SagaParticipative;
 import com.tim.saga.demo.springcloud.order.entity.Order;
 import com.tim.saga.demo.springcloud.order.enums.OrderStatusEnum;
 import com.tim.saga.demo.springcloud.order.mapper.OrderMapper;
@@ -39,90 +40,105 @@ import java.util.UUID;
 @SuppressWarnings("all")
 public class OrderServiceImpl implements OrderService {
 
-	/**
-	 * logger.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-	private final OrderMapper orderMapper;
+    private final OrderMapper orderMapper;
 
-	private final PaymentService paymentService;
+    @Autowired
+    private PaymentService paymentService;
 
-	@Autowired(required = false)
-	public OrderServiceImpl(OrderMapper orderMapper, PaymentService paymentService) {
-		this.orderMapper = orderMapper;
-		this.paymentService = paymentService;
-	}
+    @Autowired(required = false)
+    public OrderServiceImpl(OrderMapper orderMapper) {
+        this.orderMapper = orderMapper;
+    }
 
-	@Override
-	public String orderPay(Integer count, BigDecimal price) {
-		final Order order = buildOrder(count, price);
-		final int rows = orderMapper.save(order);
+    @Override
+    public String orderPay(Integer count, BigDecimal price) {
+        final Order order = buildOrder(count, price);
+        final int rows = orderMapper.save(order);
 
-		if (rows > 0) {
-			paymentService.makePayment(order);
-			return "success";
-		} else {
-			return "fail";
-		}
-	}
+        if (rows > 0) {
+            paymentService.makePayment(order);
+            return "success";
+        } else {
+            return "fail";
+        }
+    }
 
-	/**
-	 * 模拟在订单支付操作中，库存在try阶段中的库存异常
-	 *
-	 * @param count  购买数量
-	 * @param amount 支付金额
-	 * @return string
-	 */
-	@Override
-	public String mockInventoryWithException(Integer count, BigDecimal amount) {
-		final Order order = buildOrder(count, amount);
-		final int rows = orderMapper.save(order);
+    /**
+     * 模拟在订单支付操作中，库存在try阶段中的库存异常
+     *
+     * @param count  购买数量
+     * @param amount 支付金额
+     * @return string
+     */
+    @Override
+    public String mockInventoryWithException(Integer count, BigDecimal amount) {
+        final Order order = buildOrder(count, amount);
+        final int rows = orderMapper.save(order);
 
-		if (rows > 0) {
-			paymentService.mockPaymentInventoryWithException(order);
-		}
+        if (rows > 0) {
+            paymentService.mockPaymentInventoryWithException(order);
+        }
 
-		return "success";
-	}
+        return "success";
+    }
 
-	/**
-	 * 模拟在订单支付操作中，扣库存阶段系统宕机
-	 *
-	 * @param count  购买数量
-	 * @param amount 支付金额
-	 * @return string
-	 */
-	@Override
-	public String mockInventoryWithShutdown(Integer count, BigDecimal amount) {
-		final Order order = buildOrder(count, amount);
-		final int rows = orderMapper.save(order);
+    /**
+     * 模拟在订单支付操作中，扣库存阶段系统宕机
+     *
+     * @param count  购买数量
+     * @param amount 支付金额
+     * @return string
+     */
+    @Override
+    public String mockInventoryWithShutdown(Integer count, BigDecimal amount) {
+        final Order order = buildOrder(count, amount);
+        final int rows = orderMapper.save(order);
 
-		if (rows > 0) {
-			paymentService.mockPaymentInventoryWithShutdown(order);
-		}
+        if (rows > 0) {
+            paymentService.mockPaymentInventoryWithShutdown(order);
+        }
 
-		return "success";
-	}
+        return "success";
+    }
 
 
-	@Override
-	public void updateOrderStatus(Order order) {
-		orderMapper.update(order);
-	}
+    @Override
+    public void updateOrderStatus(Order order) {
+        orderMapper.update(order);
+    }
 
-	private Order buildOrder(Integer count, BigDecimal price) {
-		LOGGER.debug("构建订单对象");
-		Order order = new Order();
-		order.setCreateTime(new Date());
-		order.setNumber(UUID.randomUUID().toString());
-		//demo中的表里只有商品id为 1的数据
-		order.setProductId(1L);
-		order.setStatus(OrderStatusEnum.NOT_PAY.getCode());
-		order.setTotalAmount(price.multiply(new BigDecimal(count)));
-		order.setCount(count);
-		//demo中 表里面存的用户id为1
-		order.setUserId(1L);
-		return order;
-	}
+    @SagaParticipative(cancelMethod = "cancelSuccessPayOrder")
+    @Override
+    public void successPayOrder(Order order) {
+        order.setStatus(OrderStatusEnum.PAY_SUCCESS.getCode());
+        orderMapper.update(order);
+        LOGGER.info("=========更新订单状态为已支付成功================");
+    }
+
+    @Override
+    public void cancelSuccessPayOrder(Order order) {
+        order.setStatus(OrderStatusEnum.PAY_FAIL.getCode());
+        orderMapper.update(order);
+        LOGGER.info("=========更新订单状态为支付失败================");
+    }
+
+    private Order buildOrder(Integer count, BigDecimal price) {
+        LOGGER.debug("构建订单对象");
+        Order order = new Order();
+        order.setCreateTime(new Date());
+        order.setNumber(UUID.randomUUID().toString());
+        //demo中的表里只有商品id为 1的数据
+        order.setProductId(1L);
+        order.setStatus(OrderStatusEnum.NOT_PAY.getCode());
+        order.setTotalAmount(price.multiply(new BigDecimal(count)));
+        order.setCount(count);
+        //demo中 表里面存的用户id为1
+        order.setUserId(1L);
+        return order;
+    }
 }

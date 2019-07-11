@@ -17,6 +17,7 @@
 
 package com.tim.saga.demo.springcloud.order.service.impl;
 
+import com.netflix.discovery.converters.Auto;
 import com.tim.saga.core.annotation.SagaParticipative;
 import com.tim.saga.core.annotation.SagaTransactional;
 import com.tim.saga.demo.springcloud.order.client.AccountClient;
@@ -26,6 +27,7 @@ import com.tim.saga.demo.springcloud.order.dto.InventoryDTO;
 import com.tim.saga.demo.springcloud.order.entity.Order;
 import com.tim.saga.demo.springcloud.order.enums.OrderStatusEnum;
 import com.tim.saga.demo.springcloud.order.mapper.OrderMapper;
+import com.tim.saga.demo.springcloud.order.service.OrderService;
 import com.tim.saga.demo.springcloud.order.service.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,95 +43,96 @@ import org.springframework.stereotype.Service;
 @SuppressWarnings("all")
 public class PaymentServiceImpl implements PaymentService {
 
-	/**
-	 * logger.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
+    /**
+     * logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-	private final OrderMapper orderMapper;
+    private final OrderMapper orderMapper;
 
-	private final AccountClient accountClient;
+    private final AccountClient accountClient;
 
-	private final InventoryClient inventoryClient;
+    private final InventoryClient inventoryClient;
 
-	@Autowired(required = false)
-	public PaymentServiceImpl(OrderMapper orderMapper,
-	                          AccountClient accountClient,
-	                          InventoryClient inventoryClient) {
-		this.orderMapper = orderMapper;
-		this.accountClient = accountClient;
-		this.inventoryClient = inventoryClient;
-	}
+    //TODO: 此处不应该存在对OrderService的循环引用
+    @Autowired
+    private OrderService orderService;
 
-	@Override
-	@SagaTransactional
-	public void makePayment(Order order) {
-		this.successPayOrder(order);
+    @Autowired(required = false)
+    public PaymentServiceImpl(OrderMapper orderMapper,
+                              AccountClient accountClient,
+                              InventoryClient inventoryClient) {
+        this.orderMapper = orderMapper;
+        this.accountClient = accountClient;
+        this.inventoryClient = inventoryClient;
+    }
 
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAmount(order.getTotalAmount());
-		accountDTO.setUserId(order.getUserId());
-		accountDTO.setOrderId(order.getId());
-		LOGGER.debug("===========执行springcloud扣减资金接口==========");
-		accountClient.payment(accountDTO);
+    @Override
+    @SagaTransactional
+    public void makePayment(Order order) {
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setAmount(order.getTotalAmount());
+        accountDTO.setUserId(order.getUserId());
+        accountDTO.setOrderId(order.getId());
 
-		//进入扣减库存操作
-		InventoryDTO inventoryDTO = new InventoryDTO();
-		inventoryDTO.setCount(order.getCount());
-		inventoryDTO.setProductId(order.getProductId());
-		inventoryDTO.setOrderId(order.getId());
-		inventoryClient.decrease(inventoryDTO);
-	}
+        LOGGER.debug("===========执行springcloud扣减资金接口==========");
+        accountClient.payment(accountDTO);
 
-	@Override
-	@SagaTransactional
-	public void mockPaymentInventoryWithException(Order order) {
-		LOGGER.debug("===========执行springcloud  mockPaymentInventoryWithException 扣减资金接口==========");
-		this.successPayOrder(order);
+        //进入扣减库存操作
+        InventoryDTO inventoryDTO = new InventoryDTO();
+        inventoryDTO.setCount(order.getCount());
+        inventoryDTO.setProductId(order.getProductId());
+        inventoryDTO.setOrderId(order.getId());
 
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAmount(order.getTotalAmount());
-		accountDTO.setUserId(order.getUserId());
-		accountDTO.setOrderId(order.getId());
+        LOGGER.debug("===========执行springcloud扣减库存接口==========");
+        inventoryClient.decrease(inventoryDTO);
 
+        this.orderService.successPayOrder(order);
+    }
 
-		accountClient.payment(accountDTO);
+    @Override
+    @SagaTransactional
+    public void mockPaymentInventoryWithException(Order order) {
+        LOGGER.debug("===========执行springcloud  mockPaymentInventoryWithException 扣减资金接口==========");
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setAmount(order.getTotalAmount());
+        accountDTO.setUserId(order.getUserId());
+        accountDTO.setOrderId(order.getId());
 
-		//进入扣减库存操作
-		InventoryDTO inventoryDTO = new InventoryDTO();
-		inventoryDTO.setCount(order.getCount());
-		inventoryDTO.setProductId(order.getProductId());
-		inventoryDTO.setOrderId(order.getId());
-		inventoryClient.decreaseWithException(inventoryDTO);
-	}
+        accountClient.payment(accountDTO);
 
-	@Override
-	@SagaTransactional
-	public void mockPaymentInventoryWithShutdown(Order order) {
-		LOGGER.debug("===========执行springcloud  mockPaymentInventoryWithShutdown 扣减资金接口==========");
-		this.successPayOrder(order);
+        //进入扣减库存操作
+        InventoryDTO inventoryDTO = new InventoryDTO();
+        inventoryDTO.setCount(order.getCount());
+        inventoryDTO.setProductId(order.getProductId());
+        inventoryDTO.setOrderId(order.getId());
+        inventoryClient.decreaseWithException(inventoryDTO);
 
-		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAmount(order.getTotalAmount());
-		accountDTO.setUserId(order.getUserId());
-		accountDTO.setOrderId(order.getId());
+        this.orderService.successPayOrder(order);
+    }
 
-		accountClient.payment(accountDTO);
+    @Override
+    @SagaTransactional
+    public void mockPaymentInventoryWithShutdown(Order order) {
+        LOGGER.debug("===========执行springcloud  mockPaymentInventoryWithShutdown 扣减资金接口==========");
 
-		//扣库存阶段系统宕机
-		System.exit(1);
-	}
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setAmount(order.getTotalAmount());
+        accountDTO.setUserId(order.getUserId());
+        accountDTO.setOrderId(order.getId());
 
-	public void successPayOrder(Order order) {
-		order.setStatus(OrderStatusEnum.PAY_SUCCESS.getCode());
-		orderMapper.update(order);
-		LOGGER.info("=========进行订单cancel操作完成================");
-	}
+        accountClient.payment(accountDTO);
 
-	public void cancelPayment(Order order) {
-		order.setStatus(OrderStatusEnum.PAY_FAIL.getCode());
-		orderMapper.update(order);
-		LOGGER.info("=========进行订单cancel操作完成================");
-	}
+        //扣库存阶段系统宕机
+        System.exit(1);
 
+        //进入扣减库存操作
+        InventoryDTO inventoryDTO = new InventoryDTO();
+        inventoryDTO.setCount(order.getCount());
+        inventoryDTO.setProductId(order.getProductId());
+        inventoryDTO.setOrderId(order.getId());
+        inventoryClient.decreaseWithException(inventoryDTO);
+
+        this.orderService.successPayOrder(order);
+    }
 }

@@ -9,6 +9,8 @@ Java saga分布式事务
 * 支持异步cancel， 同时支持并行cancel，尽可能减少对系统的性能影响
 * 支持spring cloud、dubbo
 ## 上手指南
+### 详细源码解读
+简书博客地址 [https://www.jianshu.com/nb/38534376](https://www.jianshu.com/nb/38534376)
 ### 基本概念
 * SagaTransactional注解：定义事务边界，当前支持事务嵌套，但是只有最外层事务才会提交或者回滚
 * SagaParticipative注解：定义事务参与方，该标记设置cancelMethod，如果未设置，则事务回滚时什么也不做

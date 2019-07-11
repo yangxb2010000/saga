@@ -17,6 +17,7 @@
 
 package com.tim.saga.demo.springcloud.order.service;
 
+import com.tim.saga.core.annotation.SagaParticipative;
 import com.tim.saga.demo.springcloud.order.entity.Order;
 
 import java.math.BigDecimal;
@@ -28,37 +29,52 @@ import java.math.BigDecimal;
  */
 public interface OrderService {
 
-	/**
-	 * 创建订单并且进行扣除账户余额支付，并进行库存扣减操作.
-	 *
-	 * @param count  购买数量
-	 * @param amount 支付金额
-	 * @return string
-	 */
-	String orderPay(Integer count, BigDecimal amount);
+    /**
+     * 创建订单并且进行扣除账户余额支付，并进行库存扣减操作.
+     *
+     * @param count  购买数量
+     * @param amount 支付金额
+     * @return string
+     */
+    String orderPay(Integer count, BigDecimal amount);
 
-	/**
-	 * 模拟在订单支付操作中，扣减库存异常.
-	 *
-	 * @param count  购买数量
-	 * @param price  单价
-	 * @return string
-	 */
-	String mockInventoryWithException(Integer count, BigDecimal price);
+    /**
+     * 模拟在订单支付操作中，扣减库存异常.
+     *
+     * @param count 购买数量
+     * @param price 单价
+     * @return string
+     */
+    String mockInventoryWithException(Integer count, BigDecimal price);
 
-	/**
-	 * 模拟在订单支付操作中，扣减库存时系统宕机.
-	 *
-	 * @param count  购买数量
-	 * @param price 单价
-	 * @return string
-	 */
-	String mockInventoryWithShutdown(Integer count, BigDecimal price);
+    /**
+     * 模拟在订单支付操作中，扣减库存时系统宕机.
+     *
+     * @param count 购买数量
+     * @param price 单价
+     * @return string
+     */
+    String mockInventoryWithShutdown(Integer count, BigDecimal price);
 
-	/**
-	 * 更新订单状态.
-	 *
-	 * @param order 订单实体类
-	 */
-	void updateOrderStatus(Order order);
+    /**
+     * 更新订单状态为已支付成功
+     *
+     * @param order
+     */
+    @SagaParticipative(cancelMethod = "cancelSuccessPayOrder")
+    void successPayOrder(Order order);
+
+    /**
+     * 更新订单状态为支付失败
+     *
+     * @param order
+     */
+    void cancelSuccessPayOrder(Order order);
+
+    /**
+     * 更新订单状态.
+     *
+     * @param order 订单实体类
+     */
+    void updateOrderStatus(Order order);
 }
