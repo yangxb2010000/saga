@@ -26,7 +26,7 @@ public class SagaTransactionalAspect {
     }
 
     @Around("sagaTransactionalPointcut()")
-    public void around(ProceedingJoinPoint point) {
+    public Object around(ProceedingJoinPoint point) {
         MethodSignature signature = (MethodSignature) point.getSignature();
         SagaTransactional sagaTransactional = signature.getMethod().getAnnotation(SagaTransactional.class);
 
@@ -36,7 +36,7 @@ public class SagaTransactionalAspect {
                 .method(signature.getMethod())
                 .build();
 
-        SagaTransactionalInterceptor.intercept(this.sagaApplicationContext, () -> {
+        return SagaTransactionalInterceptor.intercept(this.sagaApplicationContext, () -> {
             try {
                 return point.proceed();
             } catch (Throwable throwable) {
