@@ -33,7 +33,7 @@ public class SagaParticipativeAspect {
     }
 
     @Around("sagaParticipativePointcut()")
-    public void around(ProceedingJoinPoint point) throws Throwable {
+    public Object around(ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
 
         SagaParticipative sagaParticipative = signature.getMethod().getAnnotation(SagaParticipative.class);
@@ -46,13 +46,12 @@ public class SagaParticipativeAspect {
                 .args(point.getArgs())
                 .build();
 
-        SagaParticipativeInterceptor.intercept(this.sagaApplicationContext, () -> {
+        return SagaParticipativeInterceptor.intercept(this.sagaApplicationContext, () -> {
             try {
-                point.proceed();
+                return point.proceed();
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
-            return null;
         }, annotationInfo);
     }
 }
