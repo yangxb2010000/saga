@@ -23,7 +23,7 @@
         <mysql.version>8.0.16</mysql.version>
         <springfox.version>2.6.1</springfox.version>
         <springboot.mybatis.version>1.1.1</springboot.mybatis.version>
-        <dubbo.version>2.7.1</dubbo.version>
+        <dubbo.version>2.7.13</dubbo.version>
         <zookeeper.version>3.4.14</zookeeper.version>
 
         <!-- 文件拷贝时的编码 -->
